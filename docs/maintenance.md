@@ -89,6 +89,9 @@ Please upgrade Node.js to a supported version: ">=22.y.y"
 - **整形と lint（Biome、Oxlint + Oxfmt、Vite+）**: 2026.11.11 時点で、どれも `.astro` ファイルの扱いが実験的か部分的。このサイトはコードの大半が `.astro` なので、誤検知が AI の作業を誤らせる害のほうが大きい。Biome の対応表から Astro の「実験的」が外れるか、Oxlint がテンプレートの lint に対応したら見直す
   - 確認先: <https://biomejs.dev/internals/language-support/> / <https://oxc.rs/compatibility.html>
 
+- **pnpm 12**: 2026.11.11 時点で見送り（pnpm 10 のまま）。CI は通るが、pnpm 12 はロックファイルに自分の版を記録する欄（`packageManagerDependencies`）を持ち、それが無いか古いと `--frozen-lockfile` が失敗する。Dependabot の対応は pnpm 10 までで、この欄を保たずにロックファイルを書き直すと、自動更新の PR がすべて CI で落ちてマージされなくなる。Dependabot が pnpm 12 に正式対応したら再開する（下書きの PR #83 に経緯）
+  - 確認先: <https://docs.github.com/en/code-security/dependabot/ecosystems-supported-by-dependabot/supported-ecosystems-and-repositories>
+
 ## 止まると困る外部のもの
 
 - **ドメイン `sapporochessclub.com`（お名前.com）**: 失効するとサイトもメールの案内も止まる。自動更新の設定と支払い方法の期限を年に一度確かめる
