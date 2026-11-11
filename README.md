@@ -14,6 +14,7 @@
 ## セットアップ
 
 ```bash
+corepack enable   # package.json で固定した版の pnpm を使う
 pnpm install
 pnpm dev      # http://localhost:4321/
 pnpm build    # dist/ に静的ファイル生成

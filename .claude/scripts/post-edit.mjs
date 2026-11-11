@@ -30,7 +30,8 @@ function run(command, ...args) {
   }
 }
 
-const build = () => run("pnpm", "build");
+// pnpm を介さず astro を直接呼ぶ: 手元の pnpm が古いと packageManager の版へ切り替えられず失敗する
+const build = () => run("node", "node_modules/astro/bin/astro.mjs", "build");
 const content = () => run("node", "scripts/check-content.mjs");
 const merge = () => run("node", "scripts/check-schedule-merge.mjs");
 const i18n = () => run("node", "scripts/check-i18n.mjs");
