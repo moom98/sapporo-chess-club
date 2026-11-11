@@ -99,7 +99,10 @@
 
 ## セキュリティ
 
-- `BaseLayout.astro` に CSP meta タグあり
+- CSP は Astro の `security.csp`（`astro.config.mjs`）がビルド時にハッシュを計算して `<meta>` で出す。`'unsafe-inline'` は無い。ハッシュに無いものはブラウザが黙って止めるので次を守る（`pnpm check:content` が全ページを突き合わせる）:
+  - `style="…"` 属性と `onclick` 等の属性を書かない（クラスと `<script>` にする）。JS から `el.style.x = …` と書くのは可
+  - `<head>` で同期実行するスクリプトは `src/scripts/head-*.js` に置く（`astro.config.mjs` が同じファイルからハッシュを計算する）。`<script is:inline>` に直書きしない
+  - 外部のスクリプト・画像・通信先を足すときは `astro.config.mjs` の `directives` / `scriptDirective.resources` に加える
 - 外部リンクには `target="_blank" rel="noopener noreferrer"`
 - 依存は公開から 7 日たった版だけを入れる（`pnpm-workspace.yaml` の `minimumReleaseAge`）。外して最新版を入れない。CI は依存のコードが動く job に書き込み権限を渡さない。理由は `docs/maintenance.md`
 - CMS から来る外部 URL はスキーマの `requiredHttpUrl` / `optionalHttpUrl` で http(s) に限定する（`javascript:` 等を href に出さない）
@@ -138,7 +141,7 @@ pnpm verify   # 下の 5 つを順に実行。必ず通す
 | `pnpm check` | 型チェック。エラー 0 を維持する |
 | `pnpm build` | ビルド |
 | `pnpm check:search` | canonical・hreflang・サイトマップ・`llms.txt` の整合（ビルド後） |
-| `pnpm check:content` | 英訳の欠落・JSON-LD の必須項目・スケジュールの形式と結合規則（ビルド後） |
+| `pnpm check:content` | 英訳の欠落・JSON-LD の必須項目・スケジュールの形式と結合規則・CSP のハッシュ（ビルド後） |
 | `pnpm check:i18n` | ja/en のキー構造・日本語のベタ書き |
 
 - 検査は `scripts/*.mjs`。**Node だけで動かす**（他の道具に頼ると、無い環境で失敗ではなく素通りになる）
