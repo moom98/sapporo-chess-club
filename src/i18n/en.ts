@@ -137,6 +137,10 @@ export default {
   rss: {
     title: "Sapporo Chess Club — News",
     description: "Latest updates from Sapporo Chess Club",
+    pageTitle: "Subscribe via RSS",
+    lead: "Get club news updates in your RSS reader.",
+    howTo: "Add the URL below to an RSS reader such as Feedly, Inoreader, or NetNewsWire.",
+    urlLabel: "Feed URL",
   },
   announcements: {
     label: "News",

@@ -30,7 +30,7 @@
 | `lib/schedule-data.ts` | スケジュール取得（JST フィルタ・お知らせ slug 解決込み） |
 | `lib/schedule.ts` | イベント名・注記の取得（ja フォールバック込み）、連続日の大会の結合 |
 | `lib/faq.ts` | FAQ 項目。本文と `llms.txt` で共有 |
-| `lib/rss.ts` | RSS フィード（ja/en の `rss.xml.ts` が共有） |
+| `lib/rss.ts` | RSS フィード（ja/en の `rss.xml.ts` が共有）。人向けの案内は `RssPage.astro`（`/rss/`）。フィードに XSLT を付けない（主要ブラウザが廃止） |
 | `i18n` の `getLocalePath` / `getLocaleUrl` / `getRssPath` | 内部リンク・絶対 URL・RSS のパス。`/en` の付け外しを手で組まない |
 | `lib/listbox.ts` / `lib/scroll-observer.ts` | 年フィルターの listbox、スクロール観測（headroom 用） |
 | `lib/announcement.ts` | お知らせ取得・整形・getStaticPaths 共有実装 |

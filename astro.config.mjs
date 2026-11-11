@@ -17,8 +17,9 @@ export default defineConfig({
     defaultStrategy: "viewport",
   },
   integrations: [sitemap({
-    // noindex の一覧とエラーページを登録しない。過去の記事本文は引き続き登録する。
+    // noindex の一覧・RSS の案内・エラーページを登録しない。過去の記事本文は引き続き登録する。
     filter: (page) => !/\/(?:en\/)?announcements\/archive(?:\/|$)/.test(new URL(page).pathname)
+      && !/^\/(?:en\/)?rss\/$/.test(new URL(page).pathname)
       && !/\/404(?:\.html|\/)?$/.test(new URL(page).pathname),
     i18n: { defaultLocale: "ja", locales: { ja: "ja-JP", en: "en-US" } },
   })],
