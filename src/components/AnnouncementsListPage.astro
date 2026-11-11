@@ -2,8 +2,8 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import AnnouncementRow from "@/components/AnnouncementRow.astro";
 import RssIcon from "@/components/RssIcon.astro";
-import { t, getLocalePath, type Locale } from "@/i18n";
-import { withBase } from "@/lib/utils";
+import JsonLd from "@/components/JsonLd.astro";
+import { t, getLocalePath, getLocaleUrl, getRssPath, type Locale } from "@/i18n";
 import {
   getActiveAnnouncements,
   getArchivedAnnouncements,
@@ -27,16 +27,16 @@ const showEnNotice = locale === "en" && entries.some(hasJaOnlyContent);
 const grouped = Array.from(groupByYear(entries).entries()).sort((a, b) => b[0] - a[0]);
 
 const archiveHref = getLocalePath(locale, "/announcements/archive");
-const rssHref = withBase(locale === "ja" ? "/rss.xml" : "/en/rss.xml")!;
+const rssHref = getRssPath(locale);
 
 const breadcrumbJsonLd = buildBreadcrumbJsonLd([
   homeCrumb(locale, Astro.site),
-  { name: i.announcements.pageTitle, url: new URL(getLocalePath(locale, "/announcements/"), Astro.site).toString() },
+  { name: i.announcements.pageTitle, url: getLocaleUrl(locale, "/announcements/", Astro.site) },
 ]);
 ---
 
 <BaseLayout title={i.announcements.pageTitle} locale={locale} description={i.seo.announcementsList.description}>
-  <script type="application/ld+json" set:html={breadcrumbJsonLd} />
+  <JsonLd json={breadcrumbJsonLd} />
   <section class="px-5 pt-16 md:pt-20 pb-6">
     <div class="flex items-start justify-between gap-4">
       <div class="flex-1 min-w-0">

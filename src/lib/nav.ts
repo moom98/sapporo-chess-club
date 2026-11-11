@@ -1,3 +1,5 @@
+import { t, getLocalePath, type Locale } from "@/i18n";
+
 /**
  * Astro の base path を剥がしてロケール非依存のパスを返す。
  * 例: "/sapporo-chess-club/en/announcements/" → "/en/announcements"
@@ -23,7 +25,6 @@ export function stripLocalePrefix(path: string): string {
  * Header (デスクトップ top nav) と HamburgerMenu (モバイル全画面メニュー) の
  * 両方から参照される。ページを増やすときはここを 1 箇所だけ編集すれば両方に反映される。
  */
-import { t, getLocalePath, type Locale } from "@/i18n";
 
 export interface NavPage {
   /** 表示名 (ロケール依存) */

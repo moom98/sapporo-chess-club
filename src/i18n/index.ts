@@ -17,3 +17,13 @@ export function getLocalePath(locale: Locale, path: string): string {
   const slashed = cleanPath.endsWith("/") ? cleanPath : `${cleanPath}/`;
   return withBase(locale === "en" ? `/en${slashed}` : slashed)!;
 }
+
+/** getLocalePath の絶対 URL 版。canonical・JSON-LD・llms.txt など origin が要る場所で使う。 */
+export function getLocaleUrl(locale: Locale, path: string, site: URL | undefined): string {
+  return new URL(getLocalePath(locale, path), site).toString();
+}
+
+/** そのロケールの RSS フィードのパス (ファイルなので末尾スラッシュは付かない)。 */
+export function getRssPath(locale: Locale): string {
+  return withBase(locale === "en" ? "/en/rss.xml" : "/rss.xml")!;
+}

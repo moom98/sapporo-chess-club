@@ -42,7 +42,7 @@ export async function getArchivedAnnouncements(): Promise<Announcement[]> {
  * アーカイブに含まれる年の一覧を新しい順で返す。
  * `/announcements/archive/[year]` の getStaticPaths から使う。
  */
-export async function getArchivedYears(): Promise<number[]> {
+async function getArchivedYears(): Promise<number[]> {
   const archived = await getArchivedAnnouncements();
   return Array.from(groupByYear(archived).keys()).sort((a, b) => b - a);
 }

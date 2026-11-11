@@ -1,18 +1,24 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { t, getLocalePath } from "@/i18n";
+
+const ja = t("ja").notFound;
+const en = t("en").notFound;
 ---
 
-{/* locale="ja" は SSR のデフォルト。JS が URL やブラウザ言語を見て英語に切り替える */}
+{/* locale="ja" は SSR のデフォルト。JS が URL を見て英語に切り替える */}
 <BaseLayout title="404" locale="ja" noindex canonicalPath="/404.html">
   <div class="px-5 py-20 text-center animate-fade-in-up">
     <p class="text-6xl font-extralight text-primary">404</p>
-    <p id="not-found-msg" class="text-base text-sub mt-4">ページが見つかりませんでした</p>
+    <p id="not-found-msg" data-en={en.message} class="text-base text-sub mt-4">{ja.message}</p>
     <a
       id="not-found-link"
-      href="/"
+      href={getLocalePath("ja", "/")}
+      data-en={en.homeLink}
+      data-en-href={getLocalePath("en", "/")}
       class="inline-block mt-8 text-sm text-primary [@media(hover:hover)]:hover:underline underline-offset-2 font-medium"
     >
-      ホームに戻る
+      {ja.homeLink}
     </a>
   </div>
 
@@ -24,8 +30,11 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
       document.documentElement.lang = "en";
       const msg = document.getElementById("not-found-msg");
       const link = document.getElementById("not-found-link") as HTMLAnchorElement | null;
-      if (msg) msg.textContent = "Page not found";
-      if (link) { link.textContent = "Back to home"; link.href = "/en/"; }
+      if (msg?.dataset.en) msg.textContent = msg.dataset.en;
+      if (link?.dataset.en && link.dataset.enHref) {
+        link.textContent = link.dataset.en;
+        link.href = link.dataset.enHref;
+      }
     }
   </script>
 </BaseLayout>

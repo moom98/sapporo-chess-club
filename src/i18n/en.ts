@@ -130,6 +130,10 @@ export default {
     label: "Chess Lessons",
     viewDetails: "View details",
   },
+  notFound: {
+    message: "Page not found",
+    homeLink: "Back to home",
+  },
   rss: {
     title: "Sapporo Chess Club — News",
     description: "Latest updates from Sapporo Chess Club",

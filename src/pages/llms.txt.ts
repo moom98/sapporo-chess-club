@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
-import { t, getLocalePath, type Locale } from "@/i18n";
+import { t, getLocaleUrl, getRssPath, type Locale } from "@/i18n";
 import { getFaqItems } from "@/lib/faq";
 
 // 補助的な案内。変動する日程は複製せず、常に公式スケジュールへリンクする。
@@ -9,7 +9,7 @@ export const GET: APIRoute = async ({ site: origin }) => {
   const sections = (["ja", "en"] as Locale[]).map((locale) => {
     const i = t(locale);
     const site = entry.data;
-    const url = (path: string) => new URL(getLocalePath(locale, path), origin).toString();
+    const url = (path: string) => getLocaleUrl(locale, path, origin);
     return [
       `## ${i.site.name}`,
       "",
@@ -28,7 +28,7 @@ export const GET: APIRoute = async ({ site: origin }) => {
       `- [${i.announcements.pageTitle}](${url("/announcements/")}): ${i.seo.announcementsList.description}`,
       `- [${i.tournament.pageTitle}](${url("/tournaments/")}): ${i.seo.tournaments.description}`,
       `- [${i.contact.label}](${url("/")}#contact)`,
-      `- [${i.rss.title}](${new URL(locale === "ja" ? "/rss.xml" : "/en/rss.xml", origin)})`,
+      `- [${i.rss.title}](${new URL(getRssPath(locale), origin)})`,
       "",
       `### ${i.faq.label}`,
       "",

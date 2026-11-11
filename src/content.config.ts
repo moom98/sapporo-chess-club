@@ -1,4 +1,5 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
+import { z } from "astro/zod";
 import { glob } from "astro/loaders";
 
 // =============================================================================
@@ -61,6 +62,15 @@ const nullableString = z.string().nullable().optional()
 /**
  * YAML の真偽値フィールド。CMS でチェックボックス未設定 (null/undefined) は false 扱い。
  */
+/**
+ * 外部サイトへのリンク。href にそのまま出るので http(s) 以外 (javascript: 等) は
+ * ビルドを失敗させて弾く。
+ */
+const isHttpUrl = (v: string | undefined) => v === undefined || /^https?:\/\//.test(v);
+const httpUrlMessage = { message: "http:// または https:// で始まる URL を入力してください" };
+const requiredHttpUrl = z.string().refine(isHttpUrl, httpUrlMessage);
+const optionalHttpUrl = nullableString.refine(isHttpUrl, httpUrlMessage);
+
 const yamlBoolean = z.boolean().nullable().optional()
   .transform((v) => v === true);
 
@@ -79,7 +89,8 @@ const optionalI18n = z.object({ ja: i18nString, en: optionalI18nString })
     return v;
   });
 
-
+/** ja・en とも必須の i18n オブジェクト。表示側は [locale] で直接参照してよい。 */
+const requiredI18n = z.object({ ja: z.string(), en: z.string() });
 
 // =============================================================================
 // コレクション定義
@@ -110,7 +121,7 @@ const scheduleTournaments = defineCollection({
     note: optionalI18n,
     announcement: nullableString,
     cancelled: yamlBoolean,
-    chessResults: nullableString,
+    chessResults: optionalHttpUrl,
   }),
 });
 
@@ -119,7 +130,7 @@ const tournaments = defineCollection({
   schema: z.object({
     title: z.object({
       ja: z.string(),
-      en: z.string().nullable().optional().transform((v) => v ?? undefined),
+      en: nullableString,
     }),
     date: requiredDate,
     endDate: optionalDate,
@@ -127,16 +138,16 @@ const tournaments = defineCollection({
     resultsPdf: nullableString,
     gamesPgn: nullableString,
     gamesPgnAnnotated: nullableString,
-    chessResults: nullableString,
+    chessResults: optionalHttpUrl,
   }),
 });
 
 const lessons = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/lessons" }),
   schema: z.object({
-    title: z.object({ ja: z.string(), en: z.string() }),
-    description: z.object({ ja: z.string(), en: z.string() }),
-    url: nullableString,
+    title: requiredI18n,
+    description: requiredI18n,
+    url: optionalHttpUrl,
   }),
 });
 
@@ -145,8 +156,8 @@ const links = defineCollection({
   schema: z.object({
     links: z.array(
       z.object({
-        title: z.object({ ja: z.string(), en: z.string() }),
-        url: z.string(),
+        title: requiredI18n,
+        url: requiredHttpUrl,
       })
     ),
   }),
@@ -157,9 +168,9 @@ const site = defineCollection({
   schema: z.object({
     email: z.string(),
     venue: z.object({
-      name: z.object({ ja: z.string(), en: z.string() }),
-      address: z.object({ ja: z.string(), en: z.string() }),
-      access: z.object({ ja: z.string(), en: z.string() }),
+      name: requiredI18n,
+      address: requiredI18n,
+      access: requiredI18n,
       geo: z.object({
         latitude: z.coerce.number(),
         longitude: z.coerce.number(),
@@ -177,14 +188,14 @@ const announcements = defineCollection({
   schema: z.object({
     title: z.object({
       ja: z.string(),
-      en: z.string().nullable().optional().transform((v) => (v === null || v === "") ? undefined : v),
+      en: nullableString,
     }),
     description: z.object({
-      ja: z.string().nullable().transform((v) => v ?? ""),
-      en: z.string().nullable().optional().transform((v) => (v === null || v === "") ? undefined : v),
+      ja: i18nString,
+      en: nullableString,
     }).nullable().optional(),
     date: requiredDate,
-    bodyEn: z.string().nullable().optional().transform((v) => (v === null || v === "") ? undefined : v),
+    bodyEn: nullableString,
   }),
 });
 

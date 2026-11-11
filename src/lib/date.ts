@@ -7,6 +7,14 @@
 
 const JST_OFFSET = "+09:00";
 
+/** en-CA は "YYYY-MM-DD" で出力される。JST のカレンダー日を文字列で得るのに使う。 */
+const jstYmd = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Tokyo",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
 /**
  * CMS の date 文字列を JST のカレンダー日として Date オブジェクトに変換する。
  * - "2026-04-15" のような date-only 形式 → JST 真夜中 (= 同日 15:00 UTC)
@@ -22,13 +30,7 @@ export function parseDate(s: string): Date {
  * 例: 2026-04-15 14:00 JST に呼ぶと 2026-04-15 00:00 JST が返る。
  */
 export function startOfTodayJST(): Date {
-  const fmt = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Tokyo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-  return new Date(`${fmt.format(new Date())}T00:00:00${JST_OFFSET}`);
+  return new Date(`${jstYmd.format(new Date())}T00:00:00${JST_OFFSET}`);
 }
 
 /**
@@ -64,12 +66,6 @@ export function getDateParts(s: string): { year: number; month: number; day: num
     const [year, month, day] = s.split("-").map(Number);
     return { year, month, day };
   }
-  const fmt = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Tokyo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-  const [year, month, day] = fmt.format(parseDate(s)).split("-").map(Number);
+  const [year, month, day] = jstYmd.format(parseDate(s)).split("-").map(Number);
   return { year, month, day };
 }
