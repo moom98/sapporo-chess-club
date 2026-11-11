@@ -2,31 +2,12 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit|Write|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "if": "Edit(content.config.ts)|Edit(.pages.yml)|Write(content.config.ts)|Write(.pages.yml)",
-            "command": "pnpm build 2>&1 | tail -5",
-            "statusMessage": "スキーマ変更を検出 — ビルドチェック中..."
-          },
-          {
-            "type": "command",
-            "if": "Edit(src/content/)|Write(src/content/)",
-            "command": "pnpm build 2>&1 | tail -5 && .claude/scripts/check-jsonld.sh",
-            "statusMessage": "コンテンツ変更を検出 — ビルド + JSON-LD チェック中..."
-          },
-          {
-            "type": "command",
-            "if": "Edit(src/i18n/ja.ts)|Edit(src/i18n/en.ts)|Write(src/i18n/ja.ts)|Write(src/i18n/en.ts)",
-            "command": ".claude/scripts/check-i18n-parity.sh",
-            "statusMessage": "i18n キー構造チェック中..."
-          },
-          {
-            "type": "command",
-            "if": "Edit(src/components/)|Edit(src/pages/)|Edit(src/layouts/)|Write(src/components/)|Write(src/pages/)|Write(src/layouts/)",
-            "command": ".claude/scripts/check-i18n-hardcoded.sh",
-            "statusMessage": "ベタ書き日本語チェック中..."
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/scripts/post-edit.mjs\"",
+            "statusMessage": "編集内容に応じた検査を実行中..."
           }
         ]
       }
