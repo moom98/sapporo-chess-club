@@ -1,0 +1,38 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import { t, getLocalePath, getRssPath, type Locale } from "@/i18n";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const i = t(locale);
+const feedUrl = new URL(getRssPath(locale), Astro.site).toString();
+---
+
+<BaseLayout title={i.rss.pageTitle} locale={locale} description={i.rss.lead} noindex>
+  <section class="px-5 pt-16 md:pt-20 pb-10">
+    <div class="mb-4">
+      <Breadcrumbs
+        label={i.nav.breadcrumb}
+        items={[
+          { label: i.nav.home, href: getLocalePath(locale, "/") },
+          { label: i.announcements.indexLabel, href: getLocalePath(locale, "/announcements") },
+        ]}
+      />
+    </div>
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight animate-fade-in-up">{i.rss.pageTitle}</h1>
+    <p class="text-sm text-muted mt-3 animate-fade-in-up stagger-1">{i.rss.lead}</p>
+
+    <div class="mt-8 max-w-xl animate-fade-in-up stagger-2">
+      <p class="text-sm text-sub leading-[1.8]">{i.rss.howTo}</p>
+      <p id="feed-url-label" class="text-2xs text-muted mt-6">{i.rss.urlLabel}</p>
+      <code
+        aria-labelledby="feed-url-label"
+        class="block mt-1 px-3 py-2.5 border border-edge rounded-md bg-surface text-sm text-ink break-all select-all"
+      >{feedUrl}</code>
+    </div>
+  </section>
+</BaseLayout>

@@ -40,4 +40,6 @@ else if (path.startsWith("src/content/")) { build(); content(); }
 else if (path === "src/i18n/ja.ts" || path === "src/i18n/en.ts") i18n();
 else if (path === "src/lib/schedule.ts" || path.startsWith("src/components/Schedule")) { i18n(); merge(); build(); content(); }
 else if (path === "src/lib/jsonld.ts" || path === "src/lib/breadcrumb.ts") { build(); content(); }
+// CSP のハッシュに関わる場所。ずれるとブラウザが黙ってスクリプトを止める
+else if (path === "astro.config.mjs" || path.startsWith("src/scripts/") || path.startsWith("src/layouts/")) { i18n(); build(); content(); }
 else if (/^src\/(components|pages|layouts)\//.test(path)) i18n();

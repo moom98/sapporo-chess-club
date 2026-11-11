@@ -3,7 +3,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import AnnouncementRow from "@/components/AnnouncementRow.astro";
 import RssIcon from "@/components/RssIcon.astro";
 import JsonLd from "@/components/JsonLd.astro";
-import { t, getLocalePath, getLocaleUrl, getRssPath, type Locale } from "@/i18n";
+import { t, getLocalePath, getLocaleUrl, type Locale } from "@/i18n";
 import {
   getActiveAnnouncements,
   getArchivedAnnouncements,
@@ -27,7 +27,7 @@ const showEnNotice = locale === "en" && entries.some(hasJaOnlyContent);
 const grouped = Array.from(groupByYear(entries).entries()).sort((a, b) => b[0] - a[0]);
 
 const archiveHref = getLocalePath(locale, "/announcements/archive");
-const rssHref = getRssPath(locale);
+const rssHref = getLocalePath(locale, "/rss");
 
 const breadcrumbJsonLd = buildBreadcrumbJsonLd([
   homeCrumb(locale, Astro.site),
