@@ -2,7 +2,7 @@
 import { render } from "astro:content";
 import { marked } from "marked";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { t, getLocalePath, type Locale } from "@/i18n";
+import { t, getLocalePath, getLocaleUrl, type Locale } from "@/i18n";
 import {
   pickTitle,
   pickDescription,
@@ -13,6 +13,7 @@ import {
 import { buildBreadcrumbJsonLd, homeCrumb } from "@/lib/breadcrumb";
 import { buildNewsArticleJsonLd } from "@/lib/jsonld";
 import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import JsonLd from "@/components/JsonLd.astro";
 
 interface Props {
   locale: Locale;
@@ -36,10 +37,7 @@ const description = pickDescription(entry, locale, 155);
 const { Content } = await render(entry);
 const enBodyHtml = entry.data.bodyEn ? marked.parse(entry.data.bodyEn) : null;
 
-const canonicalUrl = new URL(
-  getLocalePath(locale, `/announcements/${entry.id}`),
-  Astro.site,
-).toString();
+const canonicalUrl = getLocaleUrl(locale, `/announcements/${entry.id}`, Astro.site);
 const articleJsonLd = buildNewsArticleJsonLd({
   locale,
   contentLocale: locale === "en" && entry.data.bodyEn ? "en" : "ja",
@@ -52,14 +50,14 @@ const articleJsonLd = buildNewsArticleJsonLd({
 
 const breadcrumbJsonLd = buildBreadcrumbJsonLd([
   homeCrumb(locale, Astro.site),
-  { name: i.announcements.pageTitle, url: new URL(getLocalePath(locale, "/announcements/"), Astro.site).toString() },
+  { name: i.announcements.pageTitle, url: getLocaleUrl(locale, "/announcements/", Astro.site) },
   { name: title, url: canonicalUrl },
 ]);
 ---
 
 <BaseLayout title={title} locale={locale} description={description}>
-  <script type="application/ld+json" set:html={breadcrumbJsonLd} />
-  <script type="application/ld+json" set:html={articleJsonLd} />
+  <JsonLd json={breadcrumbJsonLd} />
+  <JsonLd json={articleJsonLd} />
   <article class="px-5 pt-16 md:pt-20 pb-10">
     <Breadcrumbs
       label={i.nav.breadcrumb}

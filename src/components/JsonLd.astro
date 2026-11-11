@@ -1,0 +1,10 @@
+---
+interface Props {
+  /** lib/jsonld.ts / lib/breadcrumb.ts のビルダーが返すシリアライズ済み JSON */
+  json: string;
+}
+
+const { json } = Astro.props;
+---
+
+<script type="application/ld+json" is:inline set:html={json} />

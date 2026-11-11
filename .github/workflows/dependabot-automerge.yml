@@ -6,23 +6,29 @@ name: Dependabot auto-merge
 # branch protection は Pages CMS の main 直コミットを壊すので使わない。
 on: pull_request
 
-permissions:
-  contents: write
-  pull-requests: write
+# アクションはタグではなくコミット番号で固定する (タグは後から別の中身に付け替えられる)。
+# 更新は Dependabot がコミット番号とコメントの版を書き換える PR を出す。
+# 検証 (verify) は更新された依存のコードを実行するので、読み取り権限しか渡さない。
+# 書き込み権限を持つ merge は依存を一切インストールしない。この 2 つを 1 つの job に
+# まとめないこと: 乗っ取られた依存が書き込み権限つきで動くことになる。
+permissions: {}
+
+# 公開リポジトリなので誰でも fork から PR を出せる。「PR の作成者が Dependabot」かつ
+# 「このリポジトリ内のブランチ」の両方を確かめる。github.actor だけで判定しないこと:
+# fork 側で Dependabot に操作させれば actor を偽れる。
+# トリガーを pull_request_target に変えないこと: fork のコードに書き込み権限が渡る。
 
 jobs:
-  verify-and-merge:
-    if: github.actor == 'dependabot[bot]'
+  verify:
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - name: Fetch update metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
       - run: corepack enable
@@ -30,6 +36,22 @@ jobs:
       - run: pnpm check
       - run: pnpm build
       - run: pnpm check:search
+      - run: pnpm check:content
+      - run: pnpm check:i18n
+
+  merge:
+    needs: verify
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Fetch update metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # ビルドが通っても「挙動不変」の保証はメジャーには無いので、
       # minor / patch のみ自動マージ。メジャーは PR を残して人間レビュー。

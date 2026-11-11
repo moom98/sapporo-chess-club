@@ -16,7 +16,7 @@ const lesson = lessonsData[0]?.data;
 ---
 
 {lesson && (
-  <section id="lessons" class="px-5 py-10 bg-surface border-t border-edge">
+  <section id="lessons" class="px-5 py-10 bg-surface">
     <SectionHeader label={i.lessons.label} />
     <p class="text-base font-semibold mb-1">{lesson.title[locale]}</p>
     <p class="text-sm text-muted leading-[1.7]">{lesson.description[locale]}</p>

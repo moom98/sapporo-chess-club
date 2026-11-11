@@ -9,12 +9,22 @@ updates:
       time: "09:00"
       timezone: "Asia/Tokyo"
     open-pull-requests-limit: 5
+    # 公開から 7 日たっていない版は提案させない (乗っ取られた版を自動マージで
+    # 取り込まないための待ち時間)。脆弱性の修正 (security updates) には掛からない。
+    # pnpm 側の minimumReleaseAge (pnpm-workspace.yaml) と日数をそろえること。
+    cooldown:
+      default-days: 7
     # minor / patch をまとめて 1 PR に。major は個別に PR を作って慎重にレビュー。
     groups:
       minor-and-patch:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # 型チェックに使う @astrojs/check が TypeScript 6 までしか対応していない。
+      # 対応したら外す (確認: pnpm view @astrojs/check peerDependencies)。
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
@@ -28,6 +38,8 @@ updates:
       time: "09:00"
       timezone: "Asia/Tokyo"
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
     commit-message:
       prefix: "chore(ci)"
       include: "scope"

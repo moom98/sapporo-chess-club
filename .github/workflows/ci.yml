@@ -6,12 +6,17 @@ on:
   pull_request:
   workflow_dispatch:
 
+# アクションはタグではなくコミット番号で固定する (タグは後から別の中身に付け替えられる)。
+# 更新は Dependabot がコミット番号とコメントの版を書き換える PR を出す。
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
       - run: corepack enable
@@ -19,3 +24,5 @@ jobs:
       - run: pnpm check
       - run: pnpm build
       - run: pnpm check:search
+      - run: pnpm check:content
+      - run: pnpm check:i18n

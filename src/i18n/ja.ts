@@ -116,6 +116,10 @@ export default {
     label: "チェス講座",
     viewDetails: "詳細を見る",
   },
+  notFound: {
+    message: "ページが見つかりませんでした",
+    homeLink: "ホームに戻る",
+  },
   rss: {
     title: "札幌チェスクラブ お知らせ",
     description: "札幌チェスクラブの新着情報",

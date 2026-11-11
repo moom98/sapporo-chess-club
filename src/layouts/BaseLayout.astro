@@ -3,7 +3,7 @@ import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import GlobeIcon from "@/components/GlobeIcon.astro";
 import "@/styles/globals.css";
-import { t, getLocalePath, type Locale } from "@/i18n";
+import { t, getLocalePath, getRssPath, type Locale } from "@/i18n";
 import { normalizePath, stripLocalePrefix } from "@/lib/nav";
 
 interface Props {
@@ -113,11 +113,7 @@ const enUrl = new URL(`/en${withTrailingSlash(pagePath)}`, Astro.site).toString(
       <link rel="alternate" hreflang="x-default" href={jaUrl} />
     </>}
     <link rel="describedby" href="/llms.txt" type="text/plain" />
-    {locale === "ja" ? (
-      <link rel="alternate" type="application/rss+xml" title={i.rss.title} href="/rss.xml" />
-    ) : (
-      <link rel="alternate" type="application/rss+xml" title={i.rss.title} href="/en/rss.xml" />
-    )}
+    <link rel="alternate" type="application/rss+xml" title={i.rss.title} href={getRssPath(locale)} />
 
     {/* Security: GitHub Pages doesn't support custom HTTP headers, so we use
         meta http-equiv where possible. CSP via meta cannot set frame-ancestors,

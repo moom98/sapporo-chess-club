@@ -1,4 +1,5 @@
-import { t, getLocalePath, type Locale } from "@/i18n";
+import { t, getLocaleUrl, type Locale } from "@/i18n";
+import { serializeJsonLd } from "@/lib/jsonld";
 
 export interface BreadcrumbItem {
   name: string;
@@ -9,12 +10,12 @@ export interface BreadcrumbItem {
 export function homeCrumb(locale: Locale, site: URL | undefined): BreadcrumbItem {
   return {
     name: t(locale).nav.home,
-    url: new URL(getLocalePath(locale, "/"), site).toString(),
+    url: getLocaleUrl(locale, "/", site),
   };
 }
 
 export function buildBreadcrumbJsonLd(items: BreadcrumbItem[]): string {
-  return JSON.stringify({
+  return serializeJsonLd({
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: items.map((item, i) => ({

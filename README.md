@@ -16,8 +16,9 @@
 ```bash
 pnpm install
 pnpm dev      # http://localhost:4321/
-pnpm build    # dist/ に静的ファイル生成 (81ページ)
+pnpm build    # dist/ に静的ファイル生成
 pnpm check    # astro check (型チェック)。エラー 0 を維持
+pnpm verify   # 型チェック・ビルド・全検査をまとめて実行。変更を入れる前に必ず通す
 pnpm preview  # 本番ビルドをローカルプレビュー
 ```
 
@@ -50,6 +51,7 @@ pnpm preview  # 本番ビルドをローカルプレビュー
 - **[AGENTS.md](./AGENTS.md)** — コード規約 (i18n・日付・デザイントークン・共有コンポーネント索引)。AI エージェント向けだが人間にも有効
 - **[docs/operations.md](./docs/operations.md)** — 非エンジニア向けの日常更新手順
 - **[docs/ownership-handover.md](./docs/ownership-handover.md)** — 管理者移譲時の設定・確認手順
+- **[docs/maintenance.md](./docs/maintenance.md)** — 保守の注意 (定期実行の自動停止・失敗通知・依存の更新・ドメイン)
 - **[docs/headroom-design.md](./docs/headroom-design.md)** — hide-on-scroll ヘッダーの設計判断 (触る前に必読)
 
 ## ライセンス

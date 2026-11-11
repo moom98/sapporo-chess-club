@@ -3,7 +3,8 @@ import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import ScheduleTimeline from "@/components/ScheduleTimeline.astro";
 import SectionHeader from "@/components/SectionHeader.astro";
-import { t, getLocalePath, type Locale } from "@/i18n";
+import JsonLd from "@/components/JsonLd.astro";
+import { t, getLocalePath, getLocaleUrl, type Locale } from "@/i18n";
 import { parseDate, startOfTodayJST } from "@/lib/date";
 import { getSortedScheduleDates } from "@/lib/schedule-data";
 import { buildBreadcrumbJsonLd, homeCrumb } from "@/lib/breadcrumb";
@@ -30,13 +31,13 @@ const eventsJsonLd = buildEventsJsonLd(locale, tournaments, site, Astro.site);
 
 const breadcrumbJsonLd = buildBreadcrumbJsonLd([
   homeCrumb(locale, Astro.site),
-  { name: i.schedule.pageTitle, url: new URL(getLocalePath(locale, "/schedule/"), Astro.site).toString() },
+  { name: i.schedule.pageTitle, url: getLocaleUrl(locale, "/schedule/", Astro.site) },
 ]);
 ---
 
 <BaseLayout title={i.schedule.pageTitle} locale={locale} description={i.seo.schedule.description}>
-  <script type="application/ld+json" set:html={breadcrumbJsonLd} />
-  {eventsJsonLd && <script type="application/ld+json" set:html={eventsJsonLd} />}
+  <JsonLd json={breadcrumbJsonLd} />
+  {eventsJsonLd && <JsonLd json={eventsJsonLd} />}
   <section class="px-5 pt-16 md:pt-20 pb-6">
     <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight animate-fade-in-up">{i.schedule.pageTitle}</h1>
     <p class="text-sm text-muted mt-3 animate-fade-in-up stagger-1">{i.schedule.pageSubtitle}</p>
