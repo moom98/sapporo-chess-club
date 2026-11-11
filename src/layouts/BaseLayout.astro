@@ -5,6 +5,10 @@ import GlobeIcon from "@/components/GlobeIcon.astro";
 import "@/styles/globals.css";
 import { t, getLocalePath, getRssPath, type Locale } from "@/i18n";
 import { normalizePath, stripLocalePrefix } from "@/lib/nav";
+// <head> で同期実行するスクリプト。中身を変えると CSP のハッシュも変わるので、
+// astro.config.mjs が同じファイルを読んでハッシュを計算している。ここへ直書きしないこと。
+import motionScript from "@/scripts/head-motion.js?raw";
+import analyticsScript from "@/scripts/head-analytics.js?raw";
 
 interface Props {
   title: string;
@@ -59,21 +63,7 @@ const enUrl = new URL(`/en${withTrailingSlash(pagePath)}`, Astro.site).toString(
            3. pageshow — 保険。bfcache 復元
          外れた後の通常状態は opacity:1 なので、最悪でも「アニメ無しで表示」に着地する。
          スクリプトが動かなければクラス自体が付かず、やはり表示される。 */}
-    <script is:inline>
-      (function () {
-        var el = document.documentElement;
-        el.classList.add("motion-pending");
-        var revealed = false;
-        function reveal() {
-          if (revealed) return;
-          revealed = true;
-          el.classList.remove("motion-pending");
-        }
-        requestAnimationFrame(function () { requestAnimationFrame(reveal); });
-        setTimeout(reveal, 1000);
-        window.addEventListener("pageshow", reveal);
-      })();
-    </script>
+    <script is:inline set:html={motionScript} />
 
     {/* Google Analytics 4
          gtag.js (~170KB) は LCP/FCP に不要。load を待って初期表示のネットワークと
@@ -83,26 +73,7 @@ const enUrl = new URL(`/en${withTrailingSlash(pagePath)}`, Astro.site).toString(
          描画完了の途中に落ちる回が出る (実測 Speed Index +1.4s)。短くしすぎると
          idle を待つ意味が消える。config は dataLayer に先積みされるが、送信は
          スクリプト到着時なので、待つほど到着前に離脱したセッションを落とす。 */}
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-5CX3KE8FFP');
-      (function () {
-        function loadGtag() {
-          var s = document.createElement('script');
-          s.async = true;
-          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-5CX3KE8FFP';
-          document.head.appendChild(s);
-        }
-        function onIdle() {
-          if ('requestIdleCallback' in window) requestIdleCallback(loadGtag, { timeout: 200 });
-          else setTimeout(loadGtag, 200);
-        }
-        if (document.readyState === 'complete') onIdle();
-        else window.addEventListener('load', onIdle);
-      })();
-    </script>
+    <script is:inline set:html={analyticsScript} />
     <title>{fullTitle}</title>
     <meta name="description" content={metaDescription} />
     <meta name="robots" content={noindex ? "noindex,follow" : "max-image-preview:large"} />
@@ -115,26 +86,6 @@ const enUrl = new URL(`/en${withTrailingSlash(pagePath)}`, Astro.site).toString(
     <link rel="describedby" href="/llms.txt" type="text/plain" />
     <link rel="alternate" type="application/rss+xml" title={i.rss.title} href={getRssPath(locale)} />
 
-    {/* Security: GitHub Pages doesn't support custom HTTP headers, so we use
-        meta http-equiv where possible. CSP via meta cannot set frame-ancestors,
-        sandbox, or report-uri/report-to but the rest works. Inline scripts and
-        styles are required for Astro hydration runtime + inlined Tailwind CSS,
-        so 'unsafe-inline' is unavoidable. */}
-    <meta
-      http-equiv="Content-Security-Policy"
-      content={[
-        "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
-        "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com",
-        "font-src 'self'",
-        "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com",
-        "form-action 'self'",
-        "base-uri 'self'",
-        "object-src 'none'",
-        "manifest-src 'self'",
-      ].join("; ")}
-    />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     {/* Favicon — 2 本の rel=icon を形式別に宣言（同じファイルの重複ではなく

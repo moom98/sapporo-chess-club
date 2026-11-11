@@ -123,6 +123,10 @@ export default {
   rss: {
     title: "札幌チェスクラブ お知らせ",
     description: "札幌チェスクラブの新着情報",
+    pageTitle: "RSS で購読",
+    lead: "お知らせの更新を RSS リーダーで受け取れます。",
+    howTo: "下の URL を、お使いの RSS リーダー（Feedly、Inoreader、NetNewsWire など）に登録してください。",
+    urlLabel: "フィードの URL",
   },
   announcements: {
     label: "お知らせ",

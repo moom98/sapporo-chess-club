@@ -143,6 +143,11 @@
   }
 }
 
+/* Hero のロゴ用の和文書体。style 属性で書かないこと: CSP がインライン style を止める */
+.font-hero {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
 /* ページ入場。開始状態は html.motion-pending が持つ (BaseLayout の <head> で
    body 描画前に付与)。@starting-style ではなくクラスで隠しているのは、
    @starting-style だと通常状態が opacity:1 のため、開始値が適用される前に

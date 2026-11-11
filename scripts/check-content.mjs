@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 
 // 掲載内容と生成物 (dist/) の検査。Node だけで動かすこと: python や ripgrep に
@@ -95,8 +96,35 @@ for (const base of ["dist/announcements/", "dist/en/announcements/"]) {
   if (headings !== sectionHeaders) fail(`TOP: h2 (${headings}) と SectionHeader (${sectionHeaders}) の数が違う。見出しを直書きしていないか`);
 }
 
+// --- 4. CSP -----------------------------------------------------------------
+// CSP はハッシュ方式 ('unsafe-inline' なし)。ハッシュに無いインラインのスクリプトや
+// スタイルは、ブラウザが黙って止める (計測が止まる、動きが消える) ので、ここで突き合わせる。
+{
+  const sha256 = (text) => `sha256-${createHash("sha256").update(text).digest("base64")}`;
+  const htmlFiles = async (dir) => (await Promise.all((await readdir(new URL(dir, root), { withFileTypes: true }))
+    .map((entry) => entry.isDirectory() ? htmlFiles(`${dir}${entry.name}/`) : `${dir}${entry.name}`))).flat()
+    .filter((path) => path.endsWith(".html"));
+  for (const file of await htmlFiles("dist/")) {
+    const html = await read(file);
+    const csp = html.match(/<meta http-equiv="content-security-policy" content="([^"]*)"/i)?.[1];
+    if (!csp) { fail(`${file}: CSP の <meta> が無い`); continue; }
+    if (csp.includes("unsafe-inline")) fail(`${file}: CSP に 'unsafe-inline' が入っている`);
+    for (const [, attrs, body] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)) {
+      if (/\bsrc=/.test(attrs) || attrs.includes("application/ld+json")) continue;
+      if (!csp.includes(sha256(body))) fail(`${file}: CSP に無いインラインスクリプト: ${body.trim().slice(0, 50)}`);
+    }
+    for (const [, body] of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)) {
+      if (!csp.includes(sha256(body))) fail(`${file}: CSP に無いインラインスタイル: ${body.trim().slice(0, 50)}`);
+    }
+    const inlineStyle = html.match(/<[a-z][^>]*\sstyle="[^"]*"/i);
+    if (inlineStyle) fail(`${file}: style 属性は CSP に止められる (クラスにする): ${inlineStyle[0].slice(-80)}`);
+    const handler = html.match(/<[a-z][^>]*\son[a-z]+="/i);
+    if (handler) fail(`${file}: on* 属性は CSP に止められる: ${handler[0].slice(-80)}`);
+  }
+}
+
 if (errors.length) {
   console.error(errors.map((message) => `ERROR: ${message}`).join("\n"));
   process.exit(1);
 }
-console.log(`Content checks passed: 英訳の欠落なし, Event ${eventCounts.ja} 件, NewsArticle ${articles} 件, SportsClub, スケジュールの形式.`);
+console.log(`Content checks passed: 英訳の欠落なし, Event ${eventCounts.ja} 件, NewsArticle ${articles} 件, SportsClub, スケジュールの形式, CSP のハッシュ.`);
