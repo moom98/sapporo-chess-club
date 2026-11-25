@@ -44,11 +44,11 @@ const anchors = [
 </button>
 
 <dialog id="hamburger-dialog" class="hamburger-dialog" aria-label={i.menu.dialogLabel}>
-  <div class="menu-sheet flex flex-col w-full h-full text-surface">
+  <div class="menu-sheet flex flex-col w-full h-full text-ink">
     <div class="w-full max-w-4xl mx-auto flex items-center justify-between px-5 pt-3 pb-2">
       <a
         href={homeHref}
-        class="text-xs tracking-[3px] text-dim [@media(hover:hover)]:hover:text-surface"
+        class="text-xs tracking-[3px] text-ink [@media(hover:hover)]:hover:text-primary"
         aria-label={i.nav.homeLink}
       >
         SAPPORO CHESS CLUB
@@ -57,7 +57,7 @@ const anchors = [
         type="button"
         data-hamburger-close
         aria-label={i.menu.closeLabel}
-        class="relative inline-flex items-center justify-center w-10 h-10 -mr-2 text-surface cursor-pointer rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface before:content-[''] before:absolute before:-inset-2"
+        class="relative inline-flex items-center justify-center w-10 h-10 -mr-2 text-ink cursor-pointer rounded-md before:content-[''] before:absolute before:-inset-2"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M18 6 6 18" />
@@ -66,28 +66,28 @@ const anchors = [
       </button>
     </div>
 
-    <nav class="flex-1 min-h-0 w-full max-w-4xl mx-auto px-5 pt-5 overflow-y-auto overscroll-contain" aria-label={i.nav.mainNav}>
+    <nav class="menu-move flex-1 min-h-0 w-full max-w-4xl mx-auto px-5 pt-5 overflow-y-auto overscroll-contain" aria-label={i.nav.mainNav}>
       {pages.map((page) => (
         <a
           href={page.href}
           data-astro-prefetch
-          class="block mb-4 [@media(hover:hover)]:hover:text-white"
+          class="block mb-4 [@media(hover:hover)]:hover:text-primary"
           aria-current={page.path === currentPath ? "page" : undefined}
         >
           <span class="text-3xl font-light">{page.label}</span>
         </a>
       ))}
 
-      <hr class="border-0 border-t border-menu-line my-4" />
+      <hr class="border-0 border-t border-edge my-4" />
 
-      <p class="text-xs uppercase tracking-wider text-dim mb-2">
+      <p class="text-xs uppercase tracking-wider text-muted mb-2">
         {i.menu.sectionLabel}
       </p>
       <div class="flex flex-col gap-2">
         {anchors.map((anchor) => (
           <a
             href={anchor.href}
-            class="text-sm text-faint [@media(hover:hover)]:hover:text-surface"
+            class="text-sm text-sub [@media(hover:hover)]:hover:text-primary"
           >
             {anchor.label}
           </a>
@@ -95,11 +95,11 @@ const anchors = [
       </div>
     </nav>
 
-    <div class="border-t border-menu-line">
+    <div class="menu-move border-t border-edge">
       <div class="max-w-4xl mx-auto px-5 py-4">
         <a
           href={otherPath}
-          class="flex items-center gap-2.5 text-sm text-faint [@media(hover:hover)]:hover:text-surface"
+          class="flex items-center gap-2.5 text-sm text-sub [@media(hover:hover)]:hover:text-primary"
           aria-label={i.nav.switchLanguage}
           hreflang={otherLocale}
         >
@@ -115,6 +115,12 @@ const anchors = [
   /* <dialog> を全画面シートとして使う。showModal() で top-layer に入り、
      ESC / focus trap / inert backdrop がブラウザ側で自動的に機能する。 */
   .hamburger-dialog {
+    /* 位置を明示する。Safari は閉じた瞬間に dialog を top-layer から外すので、
+       UA 既定 (position: absolute) のままだと、退場フェードの間だけヘッダーの中へ
+       ずれて描かれる */
+    position: fixed;
+    inset: 0;
+    margin: 0;
     padding: 0;
     border: 0;
     max-width: none;
@@ -122,13 +128,16 @@ const anchors = [
     width: 100vw;
     height: 100vh; /* fallback */
     height: 100dvh;
-    /* 暗幕は dialog 側に。中身が動いても背後が暗いままで透けない。
+    /* 幕はページの地色と同じにすること。iOS Safari 26+ は画面上下の帯 (時計まわり・
+       ツールバーまわり) をページ側の色で塗り、全画面の dialog の色は拾わない。
+       地色と違う色にすると、上下に地色の帯が残る (docs/mobile-compatibility.md)。
+       幕は dialog 側に持つ。中身が動いても背後のページが透けない。
        prefers-reduced-motion は globals.css が全体で無効化。 */
-    background: var(--color-ink);
+    background: var(--color-white);
     color: inherit;
     overflow: hidden;
     opacity: 0;
-    /* 閉じ時のトランジション。display/overlay の尺は .menu-sheet の退場以上に保つこと
+    /* 閉じ時のトランジション。display/overlay の尺は .menu-move の退場以上に保つこと
        (短いと中身が消え切る前に display:none で切り落とされる)。 */
     transition:
       opacity var(--dur-quick) var(--ease-exit),
@@ -137,7 +146,6 @@ const anchors = [
   }
   .hamburger-dialog[open] {
     opacity: 1;
-    /* 開き時: 画面いっぱいの暗幕なので calm。速い初速だと「バン」と鳴る */
     transition:
       opacity var(--dur-base) var(--ease-calm),
       overlay var(--dur-base) var(--ease-calm) allow-discrete,
@@ -149,37 +157,38 @@ const anchors = [
     }
   }
 
-  /* 中身の開閉アニメ。暗幕が dialog 側なので中身が動いても透けない。
-     既定を「表示状態」にするのが肝: dialog が [open] の間は中身が必ず可視になり、
-     「開いてるのに中身だけ透明＝暗幕だけ見えて真っ黒」という事故が起きない。 */
   .menu-sheet {
-    /* 暗幕を敷いてから中身を置くまでの間。完全に同時だと黒い全画面と中身が
-       一塊で飛び込んで派手になる */
+    /* 幕を敷いてから中身を置くまでの間。完全に同時だと幕と中身が一塊で飛び込む */
     --dur-sheet-delay: 0.06s;
     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
       env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  }
+  /* 中身の開閉アニメ。動かすのは上段より下だけ: 上段のロゴはページのヘッダーと
+     同じ位置・同じ色で重なるので、動かすと二重にぶれて見える。
+     既定を「表示状態」にするのが肝: dialog が [open] の間は中身が必ず可視になり、
+     「開いてるのに中身だけ透明」という事故が起きない。 */
+  .menu-move {
     opacity: 1;
     transform: translateY(0);
   }
   /* 閉じ（[open] が外れた瞬間〜display:none までの間）: 中身が下へ沈んで消える（開きの逆）。
      退場は遅らせない — 消えたいものが居座って見える。 */
-  .hamburger-dialog:not([open]) .menu-sheet {
+  .hamburger-dialog:not([open]) .menu-move {
     opacity: 0;
     transform: translateY(8px);
     transition:
       opacity var(--dur-quick) var(--ease-exit),
       transform var(--dur-quick) var(--ease-exit);
   }
-  /* 開き: 暗幕と尺を揃え、わずかに遅らせて置く。完全に同時だと黒い全画面と中身が
-     一塊で飛び込んで派手になる。段取りが見えると同じ速さでも静かに感じる。 */
-  .hamburger-dialog[open] .menu-sheet {
+  /* 開き: 幕と尺を揃え、わずかに遅らせて置く。段取りが見えると同じ速さでも静かに感じる。 */
+  .hamburger-dialog[open] .menu-move {
     transition:
       opacity var(--dur-base) var(--ease-calm) var(--dur-sheet-delay),
       transform var(--dur-base) var(--ease-calm) var(--dur-sheet-delay);
   }
   /* display:none からの初回描画に開きの transition を効かせる開始状態。開くたび再生。 */
   @starting-style {
-    .hamburger-dialog[open] .menu-sheet {
+    .hamburger-dialog[open] .menu-move {
       opacity: 0;
       transform: translateY(8px);
     }
@@ -220,7 +229,7 @@ const anchors = [
     /**
      * transition を挟まず即座に閉じる。close() は exit transition (allow-discrete) を
      * 走らせるため、bfcache 凍結や PWA バックグラウンドが transition の途中に起きると
-     * dialog が「暗幕フェード途中」の状態で捕捉され、復元時に画面が真っ暗になる。
+     * dialog が「幕のフェード途中」の状態で捕捉され、復元時に画面が幕で覆われたままになる。
      * それを防ぐため、凍結/バックグラウンド時はアニメを外して即座に閉じる。
      */
     function closeInstant() {
@@ -230,7 +239,7 @@ const anchors = [
       requestAnimationFrame(() => { dialog.style.transition = ""; });
     }
 
-    // 起動/復元時に dialog が [open] のまま描画されると、暗幕(dark)が画面を覆って
+    // 起動/復元時に dialog が [open] のまま描画されると、幕が画面を覆って
     // 真っ黒に見える。初期化時に開いていたら即座に閉じる（安全網）。
     closeInstant();
 
