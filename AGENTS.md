@@ -71,7 +71,7 @@
 - **間隔は CSS（gap / margin）で付ける** — ソースの空白は `compressHTML: "jsx"` が除去するため効かない
 - **角丸は `rounded-md`**
 - **タップ領域 44px**（アイコンボタンは `before:-inset-2` で拡張）
-- **focus はグローバル `:focus-visible` に任せる**（`outline-none` で消さない）。例外はスキップリンクの着地点 `<main tabindex="-1">`
+- **focus はグローバル `:focus-visible` に任せる**（`outline-none` で消さない）。例外は、操作できない着地点としてフォーカスを受ける `<main tabindex="-1">` と全画面メニューの `<dialog tabindex="-1">`
 - **文字サイズは `@theme` の名前付きトークンのみ**（`text-[14px]` 等の任意値禁止。rem でないと利用者の文字拡大に追従しない）。目安: 2xs 12 / xs 14 / sm 16（本文）/ base 18（項目見出し）/ xl 20（セクション見出し、`font-normal`）
 - **区切りに中黒「・」や「※」・括弧を使わない**。項目間は gap、注意書きは種類を問わず左罫線つきの独立段（`ScheduleEventBody.astro` の形）
 - **中止などの状態は言葉（バッジ）で伝える**。色・打消し線・`opacity` 減光だけに意味を持たせない

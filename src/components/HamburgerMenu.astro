@@ -43,7 +43,7 @@ const anchors = [
   </span>
 </button>
 
-<dialog id="hamburger-dialog" class="hamburger-dialog" aria-label={i.menu.dialogLabel}>
+<dialog id="hamburger-dialog" class="hamburger-dialog" aria-label={i.menu.dialogLabel} tabindex="-1">
   <div class="menu-sheet flex flex-col w-full h-full text-ink">
     <div class="w-full max-w-4xl mx-auto flex items-center justify-between px-5 pt-3 pb-2">
       <a
@@ -121,6 +121,8 @@ const anchors = [
     position: fixed;
     inset: 0;
     margin: 0;
+    /* 開いた直後のフォーカス先 (tabindex="-1")。画面全体を囲む枠は出さない */
+    outline: none;
     padding: 0;
     border: 0;
     max-width: none;
@@ -206,18 +208,23 @@ const anchors = [
   }
 
   function initHamburgerMenu(openBtn: HTMLButtonElement, dialog: HTMLDialogElement) {
-    // 開いた直後のフォーカス先。autofocus 属性はブラウザ実装差で信頼できないため
-    // 明示的に JS で制御する。
-    const closeBtn = dialog.querySelector<HTMLButtonElement>("[data-hamburger-close]");
-
     // ページ遷移中フラグ。遷移リンクタップ時は覆いを維持したいので、
     // その間の visibilitychange による即閉じをスキップさせる。
     let navigating = false;
 
+    // 閉じた後にフォーカスをトリガーへ戻すのは、キーボードで開いたときだけ。
+    // タッチやマウスで戻すと、押してもいないボタンにフォーカス枠が出る。
+    let openedByKeyboard = false;
+
     /** メニューを開く。開閉アニメは CSS (transition + @starting-style) が担う。*/
-    function openMenu() {
+    function openMenu(event: MouseEvent) {
+      // キーボードで押した click は detail が 0 になる (マウス・タッチは 1 以上)
+      openedByKeyboard = event.detail === 0;
       dialog.showModal();
-      closeBtn?.focus({ preventScroll: true });
+      // フォーカスは dialog 自身に置く。showModal() は既定で最初のボタンやリンクへ
+      // フォーカスを移し、タッチ操作でもそこにフォーカス枠が出てしまう。
+      // dialog に置けば枠は出ず、Tab を押せば上段のリンクから順に回る。
+      dialog.focus({ preventScroll: true });
       openBtn.setAttribute("aria-expanded", "true");
     }
 
@@ -260,9 +267,14 @@ const anchors = [
       if (dialog.open && !openBtn.getClientRects().length) closeInstant();
     });
 
-    // close: トリガーへフォーカス復帰 (ESC の a11y)
+    // close: キーボード操作ならトリガーへフォーカス復帰 (ESC の a11y)
     dialog.addEventListener("close", () => {
       openBtn.setAttribute("aria-expanded", "false");
+      if (!openedByKeyboard) {
+        // ブラウザが自動で戻したフォーカスも外す
+        openBtn.blur();
+        return;
+      }
       // Fold 展開後など、トリガーが非表示ならデスクトップ側へ戻す。
       const focusTarget = openBtn.getClientRects().length
         ? openBtn
