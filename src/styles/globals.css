@@ -12,7 +12,9 @@
   --text-base--line-height: 1.75rem;
 
   /* カラートークン。外部サービスリンクのブランドカラー hover (X黒/JCA赤/RSS橙) のみ例外的に arbitrary 値を使う */
+  --color-page: #ffffff; /* ページの地色 */
   --color-primary: #2563eb; /* ブランド青 */
+  --color-on-primary: #ffffff; /* primary 地の上に載せる文字 */
   --color-primary-hover: #1d4ed8; /* リンク hover の濃青 */
   --color-ink: #171717; /* 見出し・強調テキスト */
   --color-sub: #525252; /* 本文セカンダリ */
@@ -43,7 +45,32 @@
   --default-transition-timing-function: var(--ease-calm);
 }
 
+/* ダークモード。OS の設定に追従する (切り替えボタンは無い)。
+   色は上のトークンを差し替えるだけにすること: コンポーネント側に dark: の色指定を
+   散らすと、片方のモードだけ直して崩れる。白・黒を直接指定 (bg-white 等) しないのも
+   同じ理由で、地色は page、primary 地の上の文字は on-primary を使う */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-page: #171717;
+    --color-primary: #60a5fa;
+    --color-primary-hover: #93c5fd;
+    --color-on-primary: #0a0a0a;
+    --color-ink: #ededed;
+    --color-sub: #c2c2c2;
+    --color-muted: #a1a1a1;
+    --color-hairline: #232323;
+    --color-edge: #363636;
+    --color-surface: #1f1f1f;
+    --color-faint: #4d4d4d;
+    --color-dim: #6b6b6b;
+  }
+}
+
 @layer base {
+  :root {
+    /* フォーム部品・スクロールバーなどブラウザ既定の描画も OS の設定に合わせる */
+    color-scheme: light dark;
+  }
   /* Tailwind v4 はデフォルトの button カーソルが default に変わったので復元 */
   button:not(:disabled),
   [role="button"]:not(:disabled) {

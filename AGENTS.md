@@ -65,6 +65,8 @@
 
 - **Tailwind v4**: 設定は CSS 内 (`@theme`)、`tailwind.config.*` は無い
 - **カラーは `globals.css` の `@theme` トークンのみ**（`text-[#...]` 等の生 hex 禁止）。例外は外部サービスのブランド hover 色（X/JCA/RSS）
+- **ダークモードは OS の設定に追従**（切り替えボタンは無い）。`globals.css` の `@media (prefers-color-scheme: dark)` で色トークンを差し替えるだけにしてある。コンポーネントに `dark:` の色指定を足さない。白・黒を直接指定しない（`bg-white` / `text-white` / `text-black` 禁止）: 地色は `bg-page`、primary 地の上の文字は `text-on-primary`、濃い文字は `text-ink`。色を足したら両方のモードで明暗比を確かめる
+- **全画面メニューの幕はページの地色（`--color-page`）と同じにする**。違う色にすると iOS Safari で画面上下に地色の帯が残る（`docs/mobile-compatibility.md`）
 - **hover は必ず `[@media(hover:hover)]:` で gate**（モバイルのタップ残留防止）
 - **リンク**: ラベルは行き先名。テキストリンクは hover で下線（`underline-offset-2`）— 青リンクは色静止、灰色のリストリンク（Resources/Contact/Footer）は色変化も併用。ナビ UI（Header/ハンバーガー/pill）と行 hover は色/背景変化のみ
 - **上位階層への導線は `Breadcrumbs.astro`**（JSON-LD の `buildBreadcrumbJsonLd` と対で使う）

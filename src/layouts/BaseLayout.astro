@@ -104,6 +104,7 @@ const enUrl = new URL(`/en${withTrailingSlash(pagePath)}`, Astro.site).toString(
       href={`/${locale === "en" ? "manifest.en.webmanifest" : "manifest.webmanifest"}`}
     />
     <meta name="theme-color" content="#2563eb" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -128,10 +129,10 @@ const enUrl = new URL(`/en${withTrailingSlash(pagePath)}`, Astro.site).toString(
     <meta name="twitter:description" content={metaDescription} />
     <meta name="twitter:image" content={ogImage} />
   </head>
-  <body class="bg-white text-ink font-sans antialiased min-h-screen flex flex-col">
+  <body class="bg-page text-ink font-sans antialiased min-h-screen flex flex-col">
     <a
       href="#main-content"
-      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded focus:text-sm focus:font-medium"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded focus:text-sm focus:font-medium"
     >
       {i.nav.skipToMain}
     </a>
@@ -151,11 +152,11 @@ const enUrl = new URL(`/en${withTrailingSlash(pagePath)}`, Astro.site).toString(
         hidden
         class="fixed left-1/2 z-40 md:hidden bg-primary rounded-full pl-4 pr-3 py-2.5 shadow-lg flex items-center gap-3 whitespace-nowrap bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))]"
       >
-        <GlobeIcon size={15} stroke="white" strokeWidth={2} class="shrink-0" />
+        <GlobeIcon size={15} stroke="currentColor" strokeWidth={2} class="shrink-0 text-on-primary" />
         <a
           href={getLocalePath("en", normalizedPath)}
           hreflang="en"
-          class="text-white text-sm font-semibold no-underline"
+          class="text-on-primary text-sm font-semibold no-underline"
           data-lang-pill-link
         >
           {i.nav.switchLanguage}
@@ -165,7 +166,7 @@ const enUrl = new URL(`/en${withTrailingSlash(pagePath)}`, Astro.site).toString(
           type="button"
           data-lang-pill-close
           aria-label={i.nav.close}
-          class="relative flex items-center justify-center w-7 h-7 rounded-full text-white [@media(hover:hover)]:hover:bg-white/15 cursor-pointer bg-transparent border-0 before:content-[''] before:absolute before:-inset-2"
+          class="relative flex items-center justify-center w-7 h-7 rounded-full text-on-primary [@media(hover:hover)]:hover:bg-on-primary/15 cursor-pointer bg-transparent border-0 before:content-[''] before:absolute before:-inset-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M18 6 6 18" />
